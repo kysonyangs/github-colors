@@ -60,23 +60,36 @@ def run():
     yml = get_file("https://raw.githubusercontent.com/github/linguist/master/"
                    "lib/linguist/languages.yml")
     langs_yml = ordered_load(yml)
-    langs_yml = order_by_keys(langs_yml)
+    # langs_yml = order_by_keys(langs_yml)
 
     # List construction done, count keys
     lang_count = len(langs_yml)
     print("Found %d languages" % lang_count)
 
     # Construct the wanted list
-    langs = OrderedDict()
+    langs = []
     for lang in langs_yml.keys():
-        if ("type" not in langs_yml[lang] or
-                "color" in langs_yml[lang] or
-                langs_yml[lang]["type"] == "programming"):
+        # if ("type" not in langs_yml[lang] or
+        #         "color" in langs_yml[lang] or
+        #         langs_yml[lang]["type"] == "programming"):
             print("   Parsing the color for '%s' ..." % (lang))
-            langs[lang] = OrderedDict()
-            langs[lang]["color"] = langs_yml[lang]["color"] if "color" in langs_yml[lang] else None
-            langs[lang]["url"] = "https://github.com/trending?l=" + (langs_yml[lang]["search_term"] if "search_term" in langs_yml[lang] else lang)
-            langs[lang]["url"] = langs[lang]["url"].replace(' ','-').replace('#','sharp')
+            langObj = OrderedDict()
+
+            langObj["name"] = lang
+            langObj["color"] = langs_yml[lang]["color"] if "color" in langs_yml[lang] else "#cccccc"
+
+            if "search_term" in langs_yml[lang]:
+                print("search_term: " + urlParam)
+                print("------")
+
+            urlParam = langs_yml[lang]["search_term"] if "search_term" in langs_yml[lang] else lang
+            urlParam = urlParam.replace(' ','-').replace('#','sharp').lower()
+
+            langObj["urlParam"] = urlParam
+            langObj["url"] = "https://github.com/trending?l=" + urlParam
+
+            langs.append(langObj)
+
     print("Writing a new JSON file ...")
     write_json(langs)
     print("Updating the README ...")
@@ -102,14 +115,14 @@ def write_readme(text, filename='README.md'):
         colorless = OrderedDict()
 
         for lang in text:
-            if text[lang]["color"] is None:
-                colorless[lang] = text[lang]["url"]
+            if lang["color"] is None:
+                colorless[lang["name"]] = lang["url"]
             else:
-                # text[lang]["color"][1:] : remove first char ("#") from the color ("#fefefe")
+                # lang["color"][1:] : remove first char ("#") from the color ("#fefefe")
                 f.write("[![](http://via.placeholder.com/148x148/%s/%s&text=%s)](%s)" %
-                    (text[lang]["color"][1:],
-                    'ffffff' if is_dark(text[lang]["color"][1:]) else '111111',
-                    quote(lang), text[lang]["url"])
+                    (lang["color"][1:],
+                    'ffffff' if is_dark(lang["color"][1:]) else '111111',
+                    quote(lang["name"]), lang["url"])
                 )
 
         if colorless != {}:
