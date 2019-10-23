@@ -60,7 +60,7 @@ def run():
     yml = get_file("https://raw.githubusercontent.com/github/linguist/master/"
                    "lib/linguist/languages.yml")
     langs_yml = ordered_load(yml)
-    # langs_yml = order_by_keys(langs_yml)
+    langs_yml = order_by_keys(langs_yml)
 
     # List construction done, count keys
     lang_count = len(langs_yml)
@@ -68,27 +68,32 @@ def run():
 
     # Construct the wanted list
     langs = []
+
     for lang in langs_yml.keys():
         # if ("type" not in langs_yml[lang] or
         #         "color" in langs_yml[lang] or
         #         langs_yml[lang]["type"] == "programming"):
-            print("   Parsing the color for '%s' ..." % (lang))
-            langObj = OrderedDict()
+        print("   Parsing the color for '%s' ..." % (lang))
 
-            langObj["name"] = lang
-            langObj["color"] = langs_yml[lang]["color"] if "color" in langs_yml[lang] else "#cccccc"
 
-            if "search_term" in langs_yml[lang]:
-                print("search_term: " + urlParam)
-                print("------")
 
-            urlParam = langs_yml[lang]["search_term"] if "search_term" in langs_yml[lang] else lang
-            urlParam = urlParam.replace(' ','-').replace('#','sharp').lower()
 
-            langObj["urlParam"] = urlParam
-            langObj["url"] = "https://github.com/trending?l=" + urlParam
+        langObj = OrderedDict()
 
-            langs.append(langObj)
+        langObj["name"] = lang
+        langObj["color"] = langs_yml[lang]["color"] if "color" in langs_yml[lang] else "#cccccc"
+
+        if "search_term" in langs_yml[lang]:
+            print("search_term: " + urlParam)
+            print("------")
+
+        urlParam = langs_yml[lang]["search_term"] if "search_term" in langs_yml[lang] else lang
+        urlParam = urlParam.replace(' ','-').replace('#','sharp').lower()
+
+        langObj["urlParam"] = urlParam
+        langObj["url"] = "https://github.com/trending?l=" + urlParam
+
+        langs.append(langObj)
 
     print("Writing a new JSON file ...")
     write_json(langs)
