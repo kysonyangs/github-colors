@@ -9,3 +9,5 @@ So, the idea was to automate the process and learn a little Python with a fun we
 The script, `github-colors.py`, checks [Github](https://github.com/github/linguist/blob/master/lib/linguist/languages.yml) for the list of all languages, saves all colors in `colors.json` and updates the `README.md`
 
 You can also find a version [written in Go](https://github.com/LeeReindeer/github-colors).
+
+add test test3
